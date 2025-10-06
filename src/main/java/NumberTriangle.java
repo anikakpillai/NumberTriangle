@@ -120,28 +120,26 @@ public class NumberTriangle {
     public static NumberTriangle loadTriangle(String fname) throws IOException {
         // open the file and get a BufferedReader object whose methods
         // are more convenient to work with when reading the file contents.
-        BufferedReader br = new BufferedReader(new FileReader(fname));
-
+        InputStream inputStream = NumberTriangle.class.getResourceAsStream("/" + fname);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Resource not found: " + fname);
+        }
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
         List<List<NumberTriangle>> rows = new ArrayList<>();
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
-        NumberTriangle top = null;
-
         String line = br.readLine();
+
         while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
+            // Trim and split the numbers in the current line
             String[] numbers = line.trim().split("\\s+");
-
             List<NumberTriangle> currentRow = new ArrayList<>();
+
+            // Create NumberTriangle objects for this row
             for (String num : numbers) {
                 currentRow.add(new NumberTriangle(Integer.parseInt(num)));
             }
 
+            // Link the previous row’s nodes to the current row’s children
             if (!rows.isEmpty()) {
                 List<NumberTriangle> prevRow = rows.get(rows.size() - 1);
                 for (int i = 0; i < prevRow.size(); i++) {
@@ -151,16 +149,15 @@ public class NumberTriangle {
             }
 
             rows.add(currentRow);
+            line = br.readLine();  // move to next line
+        }
 
-            //read the next line
-            line = br.readLine();
-        }
         br.close();
-        if (!rows.isEmpty()) {
-            top = rows.get(0).get(0);  // topmost NumberTriangle
-        }
-        return top;
+
+        // Return the topmost NumberTriangle
+        return rows.isEmpty() ? null : rows.get(0).get(0);
     }
+
 
     public static void main(String[] args) throws IOException {
 
